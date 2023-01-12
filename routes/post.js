@@ -13,7 +13,6 @@ router.get('/allposts',(req,res)=>{
     .catch(err=>{
         console.log(err);
     })
-
 })
 
 router.post('/createpost',requireLogin,(req,res)=>{
@@ -37,7 +36,7 @@ router.post('/createpost',requireLogin,(req,res)=>{
 })
 
 router.get('/myposts',requireLogin,(req,res)=>{
-    console.log(req.user);
+    // console.log(req.user);
     Post.find({postedBy:req.user._id})
     .populate("postedBy","_id name")
     .then(myposts=>{
@@ -47,5 +46,6 @@ router.get('/myposts',requireLogin,(req,res)=>{
         console.log(err);
     })
 })
+
 
 module.exports = router
