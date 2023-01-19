@@ -51,6 +51,49 @@ router.post('/signup',(req,res)=>{
     // console.log(req.body);
 })
 
+router.post('/verifyemail',(req,res)=>{
+    const {email} = req.body
+    if(!email){
+        res.status(422).json({error:"Please add email",status:422})
+    }
+    User.findOne({email:email})
+    .then(savedUser=>{
+        if(!savedUser){
+           return res.status(422).json({error:"Invalid Email",status:422})
+        }
+        else {
+            return res.status(200).json({message:"valid email",status:200})
+        }
+        
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+
+})
+
+router.put('/updatepassword',(req,res)=>{
+    const {email,password} = req.body
+
+    User.findOne({email:email})
+    .then(savedUser=>{
+        bcrypt.hash(password,12)
+        .then(hashedPassword=>{
+            User.findByIdAndUpdate(savedUser._id,{$set:{password:hashedPassword}},{new:true},(err,result)=>{
+                if(err){
+                    return res.status(422).json({error:"Not able to update your new password"})
+                }
+                res.json({message:"Successfully Updated Your New Password!",status:200})
+            })
+        })
+        
+    })
+    .catch(err=>{
+        console.log(err);
+    })
+
+})
+
 router.post('/signin',(req,res)=>{
     const {email,password} = req.body
     if(!email || !password){
@@ -65,7 +108,7 @@ router.post('/signin',(req,res)=>{
         .then(doMatch=>{
             if(doMatch){
                 // res.json({message:"successfully signed in"})
-                let user = {name:savedUser.name,email:savedUser.email,pic:savedUser.pic}
+                let user = {name:savedUser.name,email:savedUser.email,pic:savedUser.pic,role:savedUser.role}
                 const token = jwt.sign({_id:savedUser._id},JWT_SECRET)
                 res.json({token,user,status:200})
             }
@@ -92,7 +135,8 @@ router.get('/profile',requireLogin,(req,res)=>{
             gender:user.gender,
             teamType:user.teamType,
             location:user.location,
-            pic:user.pic
+            pic:user.pic,
+            role:user.role
         }
         return res.json({userDetails,status:200})
     })
@@ -124,7 +168,7 @@ router.post('/selected',(req,res)=>{
 })
 
 router.put("/updatepic",requireLogin,(req,res)=>{
-    console.log("req user",req.user,"req body",req.body);
+    // console.log("req user",req.user,"req body",req.body);
 
     User.findByIdAndUpdate(req.user._id,{$set:{pic:req.body.pic}},{new:true},(err,result)=>{
         if(err){

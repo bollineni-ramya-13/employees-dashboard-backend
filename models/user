@@ -33,6 +33,12 @@ const userSchema = new mongoose.Schema({
         type:String,
         default:"https://res.cloudinary.com/dqlfjgkoe/image/upload/v1673422015/user_circle_icon_152504_sjztbt.png"
     },
+    role:{
+        type:Object,
+        default:{
+            admin:false
+        }
+    },
     password:{
         type:String,
         required:true
